@@ -189,7 +189,6 @@ class EDD_Discount_Reminder {
 		$emails->__set( 'from_email', $config[ 'from_email' ] );
 
 		$message = sprintf( $config[ 'message' ], $code );
-		die( var_dump( $message ) );
 
 		$emails->__set( 'headers', $emails->get_headers() );
 
