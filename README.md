@@ -5,7 +5,7 @@ This plugin checks once a day for EDD discount codes that are expiring in the ne
 Also, this plugin has no UI. For it to work, you must set the configuration via the "edd_option_discount_notifications_config" filter. For example:
 
 ```
-    add_filter( 'edd_option_discount_notifications_config', function() {
+    add_filter( 'edd_discounts_reminder_config', function() {
         $config = array(
         	'message' => 'message your code is %s',
         	'subject' => 'Discount Code is expiring soon!',
