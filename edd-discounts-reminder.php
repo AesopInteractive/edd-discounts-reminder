@@ -29,9 +29,10 @@
  * **********************************************************************
  */
 
-
 /**
- * Add scheduled event on activation
+ * Add scheduled event on activation.
+ *
+ * @since 0.0.1
  */
 register_activation_hook( __FILE__, 'edd_discounts_reminder_activation' );
 function edd_discounts_reminder_activation() {
@@ -39,7 +40,9 @@ function edd_discounts_reminder_activation() {
 }
 
 /**
- * Load class when cron job is loaded.
+ * Load class when cron job runs.
+ *
+ @since 0.0.1
  */
 add_action( 'edd_discounts_reminder_doit_hook', 'edd_discounts_reminder_doit' );
 function edd_discounts_reminder_doit() {
@@ -50,6 +53,8 @@ function edd_discounts_reminder_doit() {
 
 /**
  * Clear cron job on deactivation
+ *
+ * @since 0.0.1
  */
 register_deactivation_hook( __FILE__, 'edd_discounts_reminder_deactivation' );
 function edd_discounts_reminder_deactivation() {
@@ -59,13 +64,21 @@ function edd_discounts_reminder_deactivation() {
 class EDD_Discount_Reminder {
 
 	/**
-	 * Will hold mailer config
+	 * Will hold mailer config, but only if it passes validation.
+	 *
+	 * @since 0.0.1
+	 *
+	 * @access protected
 	 *
 	 * @var array
 	 */
 	protected $config;
 
 	/**
+	 * Constructor for class
+	 *
+	 * @since 0.0.1
+	 * 
 	 * @param null|array $config Config for mailer. If is null, the default set with 'edd_discounts_reminder_config'
 	 */
 	public function __construct( $config = null ) {
@@ -78,6 +91,10 @@ class EDD_Discount_Reminder {
 
 	/**
 	 * Send notifications if it is possible to do so.
+	 *
+	 * @since 0.0.1
+	 *
+	 * @access protected
 	 */
 	protected function maybe_send() {
 		$discounts = $this->get_discounts_to_notify();
@@ -95,6 +112,10 @@ class EDD_Discount_Reminder {
 	/**
 	 * Apply filter, validate and possibly set config parameter for class
 	 *
+	 * @since 0.0.1
+	 *
+	 * @access protected
+	 * 
 	 * @param array|null $config
 	 */
 	protected function set_config( $config ) {
@@ -104,7 +125,7 @@ class EDD_Discount_Reminder {
 		 * @param array $config
 		 */
 		$config = apply_filters( 'edd_discounts_reminder_config', $config );
-		if ( $this->validate_config( $config ) ) {
+		if (true === $this->validate_config( $config )  ) {
 			$this->config = $config;
 		}else{
 			$this->config = false;
@@ -116,7 +137,11 @@ class EDD_Discount_Reminder {
 	/**
 	 * Validate the config
 	 *
-	 * @param $config
+	 * @since 0.0.1
+	 *
+	 * @access protected
+	 * 
+	 * @param array $config The configuration array to validate
 	 *
 	 * @return bool
 	 */
@@ -128,7 +153,7 @@ class EDD_Discount_Reminder {
 				'from_email',
 				'from_name'
 			) as $field ) {
-				if (! isset( $config[ $field ] ) || is_string( $config[ $field ] ) ) {
+				if (! isset( $config[ $field ] ) || ! is_string( $config[ $field ] ) ) {
 					return false;
 
 				}
@@ -143,6 +168,10 @@ class EDD_Discount_Reminder {
 	/**
 	 * Find discounts to notify
 	 *
+	 * @since 0.0.1
+	 *
+	 * @access protected
+	 * 
 	 * Only returns discounts expiring within 24 hours that have a valid email for the name.
 	 *
 	 * @return array
@@ -178,6 +207,10 @@ class EDD_Discount_Reminder {
 
 	/**
 	 * Send an email
+	 * 
+	 * @since 0.0.1
+	 * 
+	 * @access protected
 	 *
 	 * @param string $code Discount code to send
 	 * @param string $to_email Email address to send to.
@@ -193,6 +226,7 @@ class EDD_Discount_Reminder {
 		$emails->__set( 'headers', $emails->get_headers() );
 
 		$emails->send( $to_email, $config[ 'subject' ], $message  );
+		
 	}
 
 }
