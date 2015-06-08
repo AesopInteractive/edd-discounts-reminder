@@ -36,7 +36,7 @@
  */
 register_activation_hook( __FILE__, 'edd_discounts_reminder_activation' );
 function edd_discounts_reminder_activation() {
-	wp_schedule_event( time(), 'daily', 'edd_discounts_reminder_doit_hook' );
+	wp_schedule_event( time(), 'twicedaily', 'edd_discounts_reminder_doit_hook' );
 }
 
 /**
@@ -75,6 +75,15 @@ class EDD_Discount_Reminder {
 	protected $config;
 
 	/**
+	 * Key used to mark discounts as sent.
+	 *
+	 * @since 0.0.2
+	 *
+	 * @var string
+	 */
+	protected $sent_key = '_edd_discounts_reminder_sent';
+
+	/**
 	 * Constructor for class
 	 *
 	 * @since 0.0.1
@@ -100,9 +109,12 @@ class EDD_Discount_Reminder {
 		$discounts = $this->get_discounts_to_notify();
 		if ( ! empty( $discounts ) ) {
 			$edd_email_class = EDD()->emails;
-			foreach( $discounts as $discount ) {
-				$this->send_email( $discount[ 'code' ], $discount[ 'email' ], $edd_email_class );
-
+			foreach( $discounts as $id => $discount ) {
+				$sent = $this->send_email( $discount[ 'code' ], $discount[ 'email' ], $edd_email_class );
+				if ( $sent ) {
+					update_post_meta( $id, $this->sent_key, 'sent' );
+				}
+				
 			}
 
 		}
@@ -185,20 +197,25 @@ class EDD_Discount_Reminder {
 			foreach ( $discounts as $discount ) {
 
 				$id = $discount->ID;
-				if ( ! edd_is_discount_expired( $id ) && ! edd_is_discount_maxed_out( $id ) ) {
-					$expires = edd_get_discount_expiration( $id );
 
-					if ( $expires && strtotime( $expires ) < $now + DAY_IN_SECONDS ) {
-						if ( filter_var( $discount->post_title, FILTER_VALIDATE_EMAIL ) ) {
-							$sends[ $id ] = array(
-								'code'  => $discount->post_name,
-								'email' => $discount->post_title
-							);
+				if ( 'sent' != get_post_meta( $id, $this->sent_key, true ) ) {
+					if ( ! edd_is_discount_expired( $id ) && ! edd_is_discount_maxed_out( $id ) ) {
+						$expires = edd_get_discount_expiration( $id );
+
+						if ( $expires && strtotime( $expires ) < $now + DAY_IN_SECONDS ) {
+							if ( filter_var( $discount->post_title, FILTER_VALIDATE_EMAIL ) ) {
+								$sends[ $id ] = array(
+									'code'  => $discount->post_name,
+									'email' => $discount->post_title
+								);
+							}
 						}
-					}
 
+					}
 				}
+
 			}
+
 		}
 
 		return $sends;
@@ -215,6 +232,8 @@ class EDD_Discount_Reminder {
 	 * @param string $code Discount code to send
 	 * @param string $to_email Email address to send to.
 	 * @param object|EDD_Emails $emails Instance of EDD_Emails
+	 *
+	 * @return bool True if sent.
  	 */
 	protected function send_email( $code, $to_email, $emails ) {
 		$config = $this->config;
@@ -225,8 +244,10 @@ class EDD_Discount_Reminder {
 
 		$emails->__set( 'headers', $emails->get_headers() );
 
-		$emails->send( $to_email, $config[ 'subject' ], $message  );
-		
+		$sent = $emails->send( $to_email, $config[ 'subject' ], $message  );
+
+		return $sent;
+
 	}
 
 }
