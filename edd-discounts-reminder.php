@@ -3,7 +3,7 @@
  * Plugin Name:     EDD Discount Reminder
  * Plugin URI:
  * Description:     Send a reminder about discounts about to expire.
- * Version: 0.0.1
+ * Version: 0.0.2
  * Author:          Josh Pollock
  * Author URI:      http://JoshPress.net
  * @copyright       Copyright (c) 2015 Josh Pollock
@@ -114,7 +114,7 @@ class EDD_Discount_Reminder {
 				if ( $sent ) {
 					update_post_meta( $id, $this->sent_key, 'sent' );
 				}
-				
+
 			}
 
 		}
