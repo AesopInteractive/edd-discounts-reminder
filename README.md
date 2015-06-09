@@ -18,6 +18,8 @@ Also, this plugin has no UI. For it to work, you must set the configuration via 
     });
 ```
 
+NOTE: The message key is the message that will be sent. In the message `%s` will be replaced with the discount code.
+
 ###IMPORTANT
-Since the crong job will excute on plugin activation, you must set the filter with the config up, BEFORE, activating the plugin, or the validation of the config will fail. As a result, the plugin is just going to roll its eyes at you like an annoyed teenager, and you will not go to space today.
+Since the cron job will excute on plugin activation, you must set up the filter with the config BEFORE activating the plugin, or the validation of the config will fail. As a result, the plugin is just going to roll its eyes at you like an annoyed teenager, and you will not go to space today -- though it should work the next time the cron job runs.
    
